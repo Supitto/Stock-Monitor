@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+
+
+from flask import Flask
+from threading import Lock
+from worker import Worker
+
+mutex = Lock()
+app = Flask("Worker Manager")
+
+worker_map = {}
+
+
+@app.route("/add/<stock_name>/<board_url>")
+def add(stock_name, board_url):
+    mutex.acquire()
+    try:
+        if not stock_name in worker_map.keys():
+            worker_map[stock_name] = Worker(stock_name)
+            worker_map[stock_name].start()
+        worker_map[stock_name].add_listener(board_url)
+    finally:
+        mutex.release()
+    return "OK"
+
+
+@app.route("/add/<stock_name>/<board_url>")
+def remove(stock_name, board_url):
+    mutex.acquire()
+    try:
+        if stock_name in worker_map.keys():
+            worker_map[stock_name].remove_listener(board_url)
+            if worker_map[stock_name].listener_count() == 0:
+                del worker_map[stock_name]
+    finally:
+        mutex.release()
+    return "OK"
+
+
+app.run()

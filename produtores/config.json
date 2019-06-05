@@ -1,0 +1,16 @@
+[{
+   "metadata": {
+      "name": "TSLA01",
+      "stock_marked": "NASDAQ"
+   },
+   "generator": {
+      "initial_value": 200,
+      "min_wait": 0.3,
+      "max_wait": 2,
+      "max_deviation": 0.02
+   },
+   "broker": {
+      "url": "0.0.0.0",
+      "port": 9000
+   }
+}]

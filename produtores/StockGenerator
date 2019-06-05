@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+
+import sys
+import stock_manager
+import json
+import time
+
+stock_managers = []
+
+
+def man():
+    print("Usage : \n\tproduce -c  <config file>\n\tproduce -i")
+    print("\nDescription\n\t -c Use a configuration file\n\t -i Interactive mode")
+    sys.exit()
+
+
+def main():
+    global stock_managers
+    if len(sys.argv) == 1 or sys.argv[1] == "-h":
+        man()
+    if sys.argv[1] == "-c":
+        try:
+            with open(sys.argv[2], 'r') as f:
+                raw_config = f.read()
+            configs = json.loads(raw_config)
+            for config in configs:
+                print("Starting stock manager for " +
+                      config["metadata"]["name"] + "...")
+                stock_managers.append(stock_manager.StockManager(
+                    config["metadata"], config["generator"], config["broker"]))
+                stock_managers[-1].start()
+                print("Started stock manager for " +
+                      config["metadata"]["name"]+"...")
+
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            sys.exit()
+
+        try:
+            time.sleep(1)
+            print("All stock managers are running, press Ctrl+C to stop")
+        except:
+            print("Stopping stock managers")
+            for a in stock_managers:
+                print("Stoping manager for "+a["metadata"]["name"]+"...")
+                a.stop()
+
+
+if __name__ == "__main__":
+    main()
